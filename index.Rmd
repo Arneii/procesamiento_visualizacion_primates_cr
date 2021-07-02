@@ -115,7 +115,7 @@ colores_registros <-
   )
 
 leaflet() %>%
-  addTiles() %>%
+  addTiles(group = "OMS") %>%
   addPolygons(
     data = provincias_registros,
     fillColor = ~ colores_registros(provincias_registros$registros),
@@ -124,7 +124,10 @@ leaflet() %>%
     color = "black",
     weight = 1,
     popup = paste(
-      paste("<strong>Provincia:</strong>", provincias_registros$registros),
+      paste(
+        "<strong>Provincia:</strong>",
+        provincias_registros$provincia.x
+      ),
       paste(
         "<strong>Altitud media:</strong>",
         round(provincias_registros$registros, digits = 2)
@@ -132,7 +135,32 @@ leaflet() %>%
       sep = '<br/>'
     ),
     group = "Provincias - registros"
-  ) 
+  ) %>%
+  addCircleMarkers(
+    data = primates,
+    stroke = F,
+    radius = 2,
+    fillColor = 'black',
+    fillOpacity = 1,
+    popup = paste(
+      primates$species,
+      primates$provincia,
+      primates$canton,
+      primates$eventDate,
+      paste0("<a href='", primates$occurrenceID, "'>Mas informacion</a>"),
+      sep = '<br/>'
+    ),
+    group = "Primates"
+  ) %>%
+  addLayersControl(baseGroups = c("OMS"),
+                   overlayGroups = c("Provincias - registros", "Primates")) %>%
+  addLegend(
+    position = "bottomleft",
+    pal = colores_registros,
+    values = provincias_registros$registros,
+    group = "Provincias - registros",
+    title = "Cantidad de registros"
+  )
 
 ```
 

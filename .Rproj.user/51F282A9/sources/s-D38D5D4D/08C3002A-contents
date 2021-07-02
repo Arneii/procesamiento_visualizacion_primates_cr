@@ -136,8 +136,24 @@ leaflet() %>%
     ),
     group = "Provincias - registros"
   ) %>%
+  addCircleMarkers(
+    data = primates,
+    stroke = F,
+    radius = 2,
+    fillColor = 'black',
+    fillOpacity = 1,
+    popup = paste(
+      primates$species,
+      primates$provincia,
+      primates$canton,
+      primates$eventDate,
+      paste0("<a href='", primates$occurrenceID, "'>Mas informacion</a>"),
+      sep = '<br/>'
+    ),
+    group = "Primates"
+  ) %>%
   addLayersControl(baseGroups = c("OMS"),
-                   overlayGroups = c("Provincias - registros")) %>%
+                   overlayGroups = c("Provincias - registros", "Primates")) %>%
   addLegend(
     position = "bottomleft",
     pal = colores_registros,
