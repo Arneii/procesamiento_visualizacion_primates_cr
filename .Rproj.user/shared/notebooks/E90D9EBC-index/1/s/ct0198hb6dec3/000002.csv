@@ -1,0 +1,5 @@
+"0","primates <- "
+"0","  primates %>% "
+"0","  mutate(coordinateUncertaintyInMeters = as.numeric(coordinateUncertaintyInMeters)) %>%"
+"0","  mutate(eventDate = as.Date(eventDate, ""%Y-&m-%d""))"
+"0",""

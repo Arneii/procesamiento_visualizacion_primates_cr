@@ -1,0 +1,120 @@
+---
+title: "Ejercicio de analisis y visualisacion de datos de primates de Costa Rica"
+author: "Sara Alvarado Siles"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preparativos
+
+## Carga de los paquetes 
+
+```{r caraga_paquetes, message=FALSE, warning=FALSE}
+library(sf)
+library(raster)
+library(leaflet)
+library(leaflet.extras)
+library(dplyr)
+
+```
+
+
+## Carga de los datos
+
+```{r carga_datos, message=FALSE, warning=FALSE}
+# Carga de la capa de cantones
+cantones <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/ign/delimitacion-territorial-administrativa/cr_cantones_simp_wgs84.geojson",
+    quiet = TRUE
+  )
+
+# Carga de la capa de provincias
+provincias <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/ign/delimitacion-territorial-administrativa/cr_provincias_simp_wgs84.geojson",
+    quiet = TRUE
+  )
+
+# Carga de los datos de primates 
+primates <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/gbif/primates-cr-registros.csv",
+    options = c(
+      "X_POSSIBLE_NAMES=decimalLongitude",
+      "Y_POSSIBLE_NAMES=decimalLatitude"
+    ),
+    quiet = TRUE
+  )
+
+# Asignación del sistema de coordenadas
+st_crs(primates) = 4326
+```
+
+## Limpieza
+
+```{r cambio_tipo_datos, message=FALSE, warning=FALSE}
+primates <- 
+  primates %>% 
+  mutate(coordinateUncertaintyInMeters = as.numeric(coordinateUncertaintyInMeters)) %>%
+  mutate(eventDate = as.Date(eventDate, "%Y-&m-%d"))
+
+```
+
+```{r limpieza_datos, message=FALSE, warning=FALSE}
+
+cat("cantidad original de registros: ", nrow(primates))
+
+# Descartar registros con alta insertidumbre en la ubicacion
+primates <- 
+  primates %>%
+  filter(!is.na(coordinateUncertaintyInMeters) & coordinateUncertaintyInMeters <= 1000)
+
+cat("cantidad de registros depues de descartar los de alta incertitumbre en la ubicacion: ", nrow(primates))
+
+# Agregar columnas de provincia y canton
+primates <- 
+  primates %>%
+  st_join(cantones["provincia"]) %>%
+  st_join(cantones["canton"])
+
+
+# Descartar registros con provincia = NA
+primates <- 
+  primates %>%
+  filter(!is.na(provincia))
+
+cat("cantidad de registros depues de descartar los que no tienen provincia: ", nrow(primates))
+```
+
+
+# Procesamiento y visualisaicon
+
+## Mapa de cantidad de registros por provincia
+
+```{r calculo_provincias_registros, message=FALSE, warning=FALSE}
+
+provincias_registros <-
+  provincias %>%
+  st_join(primates) %>%
+  group_by(provincia.x) %>%
+  summarize(registros = n()) 
+#otro opcion -> summarize(registros = n_distinct(gbifID, na.rm = TRUE)) 
+```
+
+```{r mapa_registros, message=FALSE, warning=FALSE}
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(data = provincias_registros)
+
+```
+
+
+## Mapa de cantidad de especies por provincia
+
+## Mapa agrupado (clustered)
+
+## Mapa de calor

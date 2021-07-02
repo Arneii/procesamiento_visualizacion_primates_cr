@@ -1,0 +1,6 @@
+"0",""
+"0","provincias_registros <-"
+"0","  provincias %>%"
+"0","  st_join(primates) %>%"
+"0","  group_by(provincia.x) %>%"
+"0","  summarize(registros = n()) "
