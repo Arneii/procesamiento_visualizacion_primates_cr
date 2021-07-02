@@ -106,9 +106,33 @@ provincias_registros <-
 ```
 
 ```{r mapa_registros, message=FALSE, warning=FALSE}
+# Paleta de colores
+colores_registros <-
+  colorNumeric(
+    palette = "YlGnBu",
+    domain = provincias_registros$registros,
+    na.color = "transparent"
+  )
+
 leaflet() %>%
   addTiles() %>%
-  addPolygons(data = provincias_registros)
+  addPolygons(
+    data = provincias_registros,
+    fillColor = ~ colores_registros(provincias_registros$registros),
+    fillOpacity = 0.7,
+    stroke = TRUE,
+    color = "black",
+    weight = 1,
+    popup = paste(
+      paste("<strong>Provincia:</strong>", provincias_registros$registros),
+      paste(
+        "<strong>Altitud media:</strong>",
+        round(provincias_registros$registros, digits = 2)
+      ),
+      sep = '<br/>'
+    ),
+    group = "Provincias - registros"
+  ) 
 
 ```
 
