@@ -320,7 +320,7 @@ cantones_especies <-
   rename(canton = canton.x)
 ```
 
-```{r}
+```{r mapa_canotnes}
 # Paleta de colores
 colores_especies <-
   colorNumeric(
@@ -379,5 +379,40 @@ leaflet() %>%
     title = "Cantidad de especies"
   )
 ```
-## Mapa de calor
+## Mapa de calor (heat map) de registros
+
+```{r mapa_canotnes}
+
+# Mapa Leaflet
+leaflet() %>%
+  addTiles(group = "OMS") %>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark.Matter") %>%
+  addHeatmap(
+    data = primates,
+    lng = ~decimalLongitude,
+    lat = ~decimalLatitude,
+    radius = 10,
+    blur = 20,
+    group = "Mapa de calor"
+  ) %>%
+  addCircleMarkers(
+    data = primates,
+    stroke = F,
+    radius = 2,
+    fillColor = 'black',
+    fillOpacity = 1,
+    popup = paste(
+      primates$species,
+      primates$provincia,
+      primates$canton,
+      primates$eventDate,
+      paste0("<a href='", primates$occurrenceID, "'>Mas informacion</a>"),
+      sep = '<br/>'
+    ),
+     clusterOptions = markerClusterOptions(),
+    group = "Primates"
+  ) %>%
+  addLayersControl(baseGroups = c("Dark.Matter","OMS"),
+                   overlayGroups = c("Mapa de calor", "Primates"))
+```
 
