@@ -320,7 +320,7 @@ cantones_especies <-
   rename(canton = canton.x)
 ```
 
-```{r mapa_canotnes}
+```{r mapa_canotnes, message=FALSE, warning=FALSE}
 # Paleta de colores
 colores_especies <-
   colorNumeric(
@@ -381,7 +381,7 @@ leaflet() %>%
 ```
 ## Mapa de calor (heat map) de registros
 
-```{r mapa_canotnes}
+```{r mapa_calor, message=FALSE, warning=FALSE}
 
 # Mapa Leaflet
 leaflet() %>%
@@ -389,8 +389,8 @@ leaflet() %>%
   addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark.Matter") %>%
   addHeatmap(
     data = primates,
-    lng = ~decimalLongitude,
-    lat = ~decimalLatitude,
+    lng = ~ decimalLongitude,
+    lat = ~ decimalLatitude,
     radius = 10,
     blur = 20,
     group = "Mapa de calor"
@@ -409,10 +409,44 @@ leaflet() %>%
       paste0("<a href='", primates$occurrenceID, "'>Mas informacion</a>"),
       sep = '<br/>'
     ),
-     clusterOptions = markerClusterOptions(),
+    clusterOptions = markerClusterOptions(),
     group = "Primates"
   ) %>%
-  addLayersControl(baseGroups = c("Dark.Matter","OMS"),
-                   overlayGroups = c("Mapa de calor", "Primates"))
+  addLayersControl(
+    baseGroups = c("Dark.Matter", "OMS"),
+    overlayGroups = c("Mapa de calor", "Primates")
+  )
 ```
 
+## Mapa con controles de busqueda en OSM, bonton de reinicio y coordenadas, escala y minimapa
+
+```{r mapa_controles, message=FALSE, warning=FALSE}
+
+# Mapa Leaflet
+leaflet() %>%
+  addTiles(group = "OMS") %>%
+  addCircleMarkers(
+    data = primates,
+    stroke = F,
+    radius = 2,
+    fillColor = 'black',
+    fillOpacity = 1,
+    popup = paste(
+      primates$species,
+      primates$provincia,
+      primates$canton,
+      primates$eventDate,
+      paste0("<a href='", primates$occurrenceID, "'>Mas informacion</a>"),
+      sep = '<br/>'
+    ),
+    clusterOptions = markerClusterOptions(),
+    group = "Primates"
+  ) %>%
+  addLayersControl(baseGroups = c("OMS"),
+                   overlayGroups = c("Primates")) %>%
+  addResetMapButton() %>%
+  addSearchOSM() %>%
+  addMouseCoordinates() %>%
+  addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE)) %>%
+  addMiniMap(position = "bottomleft")
+```
